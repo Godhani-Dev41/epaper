@@ -1,9 +1,9 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-app.use(express.static(__dirname + '/dist/epaperweekly'));
+app.use(express.static(__dirname + '/dist'));
 app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname +
-    '/dist/epaperweekly/index.html'));
+    '/dist/index.html'));
 });
 app.listen(process.env.PORT || 8080);
