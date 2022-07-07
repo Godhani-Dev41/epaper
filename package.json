@@ -16,7 +16,7 @@
     "precache": "sw-precache --verbose --config=sw-precache-config.js",
     "heroku-postbuild": "ng build — prod"
   },
-  "engines": { "node": "16.15.0", "npm": "8.5.5”" },
+  "engines": { "node": "16.15.0", "npm": "8.5.5" },
   "private": true,
   "dependencies": {
     "@angular-slider/ngx-slider": "^2.0.3",
