@@ -1,0 +1,92 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-2 mt-3">
+      <div class="nav flex-column nav-pills" >
+        <a class="nav-link"  href="/" >Home</a>
+        <a class="nav-link"  href="/papers">Papers</a>
+        <a class="nav-link active"  href="/settings" >Settings</a>
+      </div>
+      <div class="ml-2 mt-1">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link text-black-50" href="settings">Subscription</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/profile" role="tab">Profile</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-black-50" href="account">Account</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-10 pt-3">
+      <div class="card mt-3">
+        <div class="card-header"><div class="pull-left">Profile</div><div class="pull-right"></div></div>
+        <div class="card-body">
+          <form *ngIf="profileForm" [formGroup]="profileForm">
+            <div class="form-row">
+              <div class="col-md-6 mb-3">
+                <label for="firstNameFld">First name</label>
+                <div class="input-group mb-3">
+                  <input type="text" id="firstNameFld" class="form-control" formControlName="firstName"
+                         [ngClass]="{'is-invalid':!profileForm?.get('firstName').valid && (profileForm?.get('firstName').dirty || profileForm?.get('firstName').touched)}">
+                  <div class="invalid-feedback">
+                    Your first name was left blank.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="lastNameFld">Last name</label>
+                <div class="input-group mb-3">
+                  <input type="text" id="lastNameFld" class="form-control" formControlName="lastName"
+                         [ngClass]="{'is-invalid':!profileForm?.get('lastName').valid && (profileForm?.get('lastName').dirty || profileForm?.get('lastName').touched)}">
+                  <div class="invalid-feedback">
+                    Your last name was left blank.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Email</label>
+                <div class="input-group mb-3" [hidden]="shouldEditEmail">
+                  {{user.email}}&nbsp;<button (click)="doChangeEmail()" class="btn btn-link p-0 pl-2">Change email</button>
+                </div>
+                <div class="input-group mb-3" [hidden]="!shouldEditEmail">
+                  <input type="text" id="emailFld" class="form-control" formControlName="email"
+                         [ngClass]="{'is-invalid':!profileForm?.get('email').valid && shouldEditEmail && (profileForm?.get('email').dirty || profileForm?.get('email').touched)}">
+                  <div class="w-100">
+                    <small id="emailHelp" class="form-text text-muted">
+                      All system wide notifications will be sent to this email.
+                    </small>
+                  </div>
+                  <div class="invalid-feedback">
+                   You must enter a valid email address.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="phoneFld">Phone</label>
+                <div class="input-group mb-3">
+                  <input type="text" id="phoneFld" class="form-control" formControlName="phone" minlength="10"
+                         [ngClass]="{'is-invalid':!profileForm?.get('phone').valid && (profileForm?.get('phone').dirty || profileForm?.get('phone').touched)}">
+                  <div class="invalid-feedback">
+                    You must enter a valid phone number.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 offset-6 mb-3 text-right">
+                <span class="text-success pr-2"  *ngIf="submitted && shouldEditEmail">
+                  A verification email has been sent to above address. Changes will be in effect once verified.&nbsp;
+                </span>
+                <span class="text-success pr-2"  *ngIf="submitted && !shouldEditEmail">
+                  Your information was updated successfully.&nbsp;
+                </span>
+                <button class="btn btn-sm btn-primary" (click)="saveUserProfile()">Save</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

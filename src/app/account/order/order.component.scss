@@ -1,0 +1,105 @@
+.subheading{
+  height: 50px;
+}
+.icon li {
+  display: inline;
+  font-size: 48px;
+  margin: 5px;
+  position: relative;
+}
+.alert-heading{
+  color:black;
+}
+.count {
+  position: relative;
+  display: inline-block;
+  right: 14px;
+  top: -20px;
+  border-radius: 25px;
+  margin-right: -18px;
+  z-index: 200;
+  bottom: 0;
+  color: white;
+  background-color: black;
+}
+.info .count {
+  top: -14px;
+  right: 10px;
+}
+
+:host .irs-slider  {
+  background: url('../../../assets/img/sprite-skin-flat.png') repeat-x;
+}
+.news-item {
+  position: relative;
+  display: inline-block;
+}
+.news-item input[type=checkbox] { position: absolute; bottom: 0px; right: 0px; visibility: hidden}
+
+iframe {
+  height: 500px;
+}
+::ng-deep {
+  .custom-slider{
+    margin: 0 20px;
+  }
+  .custom-slider .ngx-slider .ngx-slider-bar {
+    background: #e1e4e9;
+    height: 10px;
+  }
+  .custom-slider .ngx-slider .ngx-slider-selection {
+    background: #000000;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto; /* to remove the default positioning */
+    bottom: 0;
+    background-color: #333;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer:after {
+    display: none;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-bubble {
+    bottom: 14px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-limit {
+    font-weight: bold;
+    color: #000000;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick {
+    width: 1.5px;
+    height: 6px;
+    margin-left: 4px;
+    border-radius: 0;
+    background: #e1e4e9;
+    top: -5px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick.ngx-slider-selected {
+    background: #8b8b8b;
+  }
+  .ngx-slider-tick-legend {
+    font-size: 11px;
+    color: #8b8b8b;
+  }
+
+  .ngx-slider-tick-value {
+    .ngx-slider-inner-tooltip {
+      font-size: 11px;
+      background: #e1e4e9;
+      padding: 4px;
+      border-radius: 3px;
+      &::after {
+        content: ' quantity';
+      }
+    }
+  }
+}

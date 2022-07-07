@@ -1,0 +1,25 @@
+.skinny .card {
+  border: 0px;
+}
+
+.upload-btn{
+  width: 50px;
+  height: 50px;
+  line-height: 34px;
+  margin-top: -5px;
+  margin-right: 9px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  color: #ccc;
+}
+.upload-btn:after{
+  display: block;
+  content: "upload photo";
+  width: 100px;
+  font-size: 10px;
+  line-height: 44px;
+  margin-left: -37px;
+}
+.upload-btn.logo:after{
+  content: "upload logo";
+}

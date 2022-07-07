@@ -1,0 +1,62 @@
+<div class="container pb-5">
+  <div class="row justify-content-center mt-5">
+    <div class="col-lg-4">
+      <img src="../../assets/img/careers.png" class="w-100 h-auto">
+    </div>
+    <div class="col-lg-8">
+      <h2 class="title-heading">Come work with us</h2>
+      <p>
+        Join our team in Salt Lake City, Utah to help reshape the E-ink tablet landscape and make products and services that reach thousands of satisfied customers.
+      </p>
+      <div class="custom-form mt-3">
+        <div id="message"></div>
+        <form formGroup="careerForm">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="form-group mt-2">
+                <input name="name" formControlName="name" id="name" class="form-control" placeholder="Name" type="text">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group mt-2">
+                <input name="email" id="email" formControlName="email" class="form-control" placeholder="Email" type="email">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="form-group mt-2">
+                <select class="form-control" id="position" formControlName="position" placeholder="Select available position">
+                  <option value="">Available positions</option>
+                  <option value="Marketing Director">Marketing Director</option>
+                  <option value="Software Engineer III">Software Engineer III</option>
+                  <option value="Web Developer">Web Developer</option>
+                  <option value="Project Manager">Project Manager</option>
+                  <option value="Business Analyst">Business Analyst</option>
+                  <option value="Customer Support Engineer">Customer Support Engineer</option>
+                  <option value="QA Lead">QA Lead</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="form-group mt-2">
+                <textarea name="comments" id="comments" formControlName="comments" rows="10" class="form-control" placeholder="Tell us about yourself"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12 mt-3 text-right">
+              <button id="submit" name="send" class="btn btn-primary" value="Apply" type="button" (click)="submit()" [disabled]="isLoading">
+                <i class="fa fa-spin fa-spinner pr-1" *ngIf="isLoading"></i>
+                Send introduction
+              </button>
+              <div id="simple-msg"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

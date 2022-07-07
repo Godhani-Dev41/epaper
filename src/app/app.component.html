@@ -1,0 +1,5 @@
+<app-header [isLoginActive]="loginIsActive"></app-header>
+<main>
+  <router-outlet (activate)="componentAdded($event)"></router-outlet>
+</main>
+<footer></footer>

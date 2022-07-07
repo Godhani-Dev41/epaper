@@ -1,0 +1,37 @@
+<div class="container skinny">
+  <div class="card mt-3 border-0">
+    <div class="card-body">
+      <form [formGroup]="loginForm">
+        <div class="form-row">
+
+          <div class="col-6">
+            <h3 class="text-black-50 mb-3">Sign In</h3>
+            <p class="text-danger">{{loginFailureMessage}}</p>
+          </div>
+          <div class="col-12" *ngIf="showVerifyMessage">
+            <div class="alert alert-success" role="alert">
+              Thank you. Your email was verified successfully!
+            </div>
+          </div>
+          <div class="col-md-12 mb-3">
+            <label for="usernameFld">Username</label>
+            <div class="input-group mb-3">
+              <input type="text" id="usernameFld" class="form-control" formControlName="username">
+            </div>
+          </div>
+          <div class="col-md-12 mb-3">
+            <label for="orgEmailFld">Password</label>
+            <div class="input-group mb-3">
+              <input type="password" id="orgEmailFld" class="form-control" formControlName="password">
+            </div>
+          </div>
+          <div class="col-6 offset-6 mb-3 text-right">
+            <a href="forgot/password" class="btn btn-sm mr-3 text-black-50">Forgot password</a>
+            <button class="btn btn-sm btn-primary" (click)="doLogin()" >Sign in</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

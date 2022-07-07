@@ -1,0 +1,15 @@
+footer{
+  float: left;
+  position: fixed;
+  display: block;
+  text-align: center;
+  bottom: 0px;
+  left: 0;
+  width: 100%;
+  z-index: 1010;
+  border-top:1px solid #ccc;
+  padding: 10px;
+  font-size:small;
+  color:rgba(0,0,0,0.5);
+  background-color: #fff;
+}

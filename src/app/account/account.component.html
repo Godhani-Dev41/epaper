@@ -1,0 +1,78 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-2 mt-3">
+      <div class="nav flex-column nav-pills">
+        <a class="nav-link" href="/" >Home</a>
+        <a class="nav-link" href="/papers">Papers</a>
+        <a class="nav-link active" href="/settings">Settings</a>
+      </div>
+      <div class="ml-2 mt-1">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link text-black-50" href="/settings">Subscription</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-black-50" href="/profile" role="tab">Profile</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/account">Account</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-10 pt-3">
+      <h3 class="mb-3 text-black-50">Account Information</h3>
+      <div class="card mt-3">
+        <div class="card-body">
+          <form *ngIf='user && accountForm' [formGroup]="accountForm">
+            <div class="form-row">
+              <div class="col-md-6 mb-3">
+                <label for="usernameFld">Username</label>
+                <div class="input-group mb-3">
+                  <input type="text" id="usernameFld" class="form-control is-valid" formControlName="username" name="username"
+                         [ngClass]="{'is-valid': accountForm?.get('username').valid && hasSubmitted,
+                         'is-invalid':!accountForm?.get('username').valid && (accountForm?.get('username').dirty || accountForm?.get('username').touched)}" [value]="user?.username" >
+                  <div class="valid-feedback">
+                    A verification email has been sent to above address. Changes will be in effect once verified.
+                  </div>
+                  <div class="invalid-feedback">
+                    The email you entered is invalid.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="passwordFld">Password</label>
+                <div class="input-group mb-3">
+                  <input type="password" id="passwordFld" class="form-control" formControlName="password" name="password"
+                         [ngClass]="{'is-invalid':!accountForm?.get('password').valid && (accountForm?.get('password').dirty || accountForm?.get('password').touched) }" minlength="8">
+                  <div class="invalid-feedback">
+                    Your password must be 8 or more characters long.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-black-50"><b>Change password</b></label>
+                <div class="input-group mb-3 text-black-50">
+                  <p>Your password will not updated unless both the password and verify password fields match</p>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="verifyPasswordFld">Verify password</label>
+                <div class="input-group mb-3">
+                  <input type="password" id="verifyPasswordFld" class="form-control" name="verifyPassword" formControlName="verifyPassword"  minlength="8"
+                         [ngClass]="{'is-invalid':!accountForm?.get('verifyPassword').valid && (accountForm?.get('verifyPassword').dirty || accountForm?.get('verifyPassword').touched)}">
+                  <div class="invalid-feedback">
+                    Your password does not match the password verification field.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 offset-6 mb-3 text-right">
+                <button class="btn btn-sm btn-primary" (click)="saveAccount()">Save</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

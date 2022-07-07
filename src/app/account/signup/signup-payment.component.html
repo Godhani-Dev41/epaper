@@ -1,0 +1,184 @@
+<div class="container w-auto w-75">
+  <div class="card mt-3 border-0">
+    <div class="card-body animated fadeIn" >
+      <form [formGroup]="billingForm" *ngIf="billingForm" class="needs-validation">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-5 p-0 m-0">
+              <div class="alert alert-light text-center pl-2 pr-2 pt-0 m-0" role="alert">
+                <h3 class="text-center">{{subscriptionRef && subscriptionRef["name"] ? subscriptionRef["name"] : ""}} Plan</h3>
+                <div class="alert alert-secondary text-center border-0" role="alert">
+                  <span class="alert-link">${{subscriptionRef && subscriptionRef["price"] ? subscriptionRef["price"] : "" }}</span> Billed monthly.
+                </div>
+                <div class="alert alert-light text-center border-0 mb-0 d-none d-lg-block" role="alert">
+                  <span class="text-muted text-success">3 day free trial <i class="fa fa-info-circle" [ngbTooltip]="trialPeriodHelp" ></i></span>
+                </div>
+              </div>
+              <div class="d-none d-lg-block"><img src="assets/img/newsweekly_remarkable.png" class="w-100"></div>
+              <div class="alert alert-light text-center d-none d-lg-block">Download up to <b>{{subscriptionRef && subscriptionRef["downloads"] ? subscriptionRef["downloads"]: ""}}</b> electronic newspapers a month, based on your interests, location and translated into your preferred language. <p>Designed for your E-ink tablet.</p></div>
+            </div>
+            <div class="col-lg-7">
+              <div class="form-row">
+                <h4 class="mb-4">Payment Info</h4>
+                <div class="col-md-12 mb-3">
+                <div class="form-group">
+                  <label for="cardHolderFld">Name on card</label>
+                  <input type="text" class="form-control" id="cardHolderFld" name="cardHolder" placeholder="" formControlName="cardHolder" [ngClass]="displayFieldCss('cardHolder')">
+                  <div class="invalid-feedback" *ngIf="isFieldValid('cardHolder')">
+                    your name on card is invalid.
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="cardHolderFld">Card</label>
+                  <div id="card-element"></div>
+                  <div id="card-info" #cardInfo></div>
+                  <div id="card-errors" class="text-danger" role="alert" *ngIf="error">{{ error }}</div>
+                </div>
+                <div class="form-group">
+                  <label for="coupon">Discount</label>
+                  <input type="text" class="form-control" id="coupon" name="coupon" placeholder="Coupon Code" formControlName="coupon" [ngClass]="{'is-invalid': !couponValid }">
+                  <div class="invalid-feedback" >
+                    {{failureMessage}}
+                  </div>
+                </div>
+              </div>
+              </div>
+              <div class="form-row">
+                <h4 class="mb-4">Billing Address</h4>
+                <div class="col-12 mb-3">
+                  <label for="phoneFld">Phone </label>
+                  <div class="input-group mb-3">
+                    <input type="text" id="phoneFld" class="form-control" formControlName="phone"  [ngClass]="displayFieldCss('phone')">
+                    <div class="invalid-feedback"  *ngIf="isFieldValid('phone')">
+                      The phone number you entered is invalid.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="street1Fld">Street 1</label>
+                  <div class="input-group mb-3">
+                    <input type="text" id="street1Fld" data-number-stepfactor="20" class="form-control" formControlName="street1" [ngClass]="displayFieldCss('street1')"/>
+                    <div class="invalid-feedback">
+                      your address is invalid.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="street1Fld">Street 2</label>
+                  <div class="input-group mb-3">
+                    <input type="text" id="street2Fld" data-number-stepfactor="20" class="form-control" formControlName="street2" />
+                  </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="cityFld">City</label>
+                  <div class="input-group mb-3">
+                    <input type="text" id="cityFld" data-number-stepfactor="20" class="form-control" formControlName="city" [ngClass]="displayFieldCss('city')"/>
+                    <div class="invalid-feedback">
+                      Enter a city.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="countryFld">Country</label>
+                  <div class="input-group mb-3">
+                    <select id="countryFld" class="form-control" formControlName="country" [ngClass]="displayFieldCss('country')" (change)="countryChanged()">
+                      <option [value]="country['code']" *ngFor="let country of countries; let itemIndex = index" [selected]="country['selected']">{{country["name"]}}</option>
+                    </select>
+                    <div class="invalid-feedback">
+                      Select a country.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3" *ngIf="isInternational">
+                  <label for="otherStateFld">State / Province</label>
+                  <div class="input-group mb-3">
+                    <input type="text" id="otherStateFld" data-number-stepfactor="20" class="form-control" formControlName="state" [ngClass]="displayFieldCss('state')" placeholder="Optional"/>
+                    <div class="invalid-feedback">
+                      Enter State / Province
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3" *ngIf="!isInternational">
+                  <label for="stateFld">State</label>
+                  <div class="input-group mb-3">
+                    <select id="stateFld" class="form-control" formControlName="state" [ngClass]="displayFieldCss('state')" >
+                      <option value="AL">Alabama</option>
+                      <option value="AK">Alaska</option>
+                      <option value="AZ">Arizona</option>
+                      <option value="AR">Arkansas</option>
+                      <option value="CA">California</option>
+                      <option value="CO">Colorado</option>
+                      <option value="CT">Connecticut</option>
+                      <option value="DE">Delaware</option>
+                      <option value="DC">District Of Columbia</option>
+                      <option value="FL">Florida</option>
+                      <option value="GA">Georgia</option>
+                      <option value="HI">Hawaii</option>
+                      <option value="ID">Idaho</option>
+                      <option value="IL">Illinois</option>
+                      <option value="IN">Indiana</option>
+                      <option value="IA">Iowa</option>
+                      <option value="KS">Kansas</option>
+                      <option value="KY">Kentucky</option>
+                      <option value="LA">Louisiana</option>
+                      <option value="ME">Maine</option>
+                      <option value="MD">Maryland</option>
+                      <option value="MA">Massachusetts</option>
+                      <option value="MI">Michigan</option>
+                      <option value="MN">Minnesota</option>
+                      <option value="MS">Mississippi</option>
+                      <option value="MO">Missouri</option>
+                      <option value="MT">Montana</option>
+                      <option value="NE">Nebraska</option>
+                      <option value="NV">Nevada</option>
+                      <option value="NH">New Hampshire</option>
+                      <option value="NJ">New Jersey</option>
+                      <option value="NM">New Mexico</option>
+                      <option value="NY">New York</option>
+                      <option value="NC">North Carolina</option>
+                      <option value="ND">North Dakota</option>
+                      <option value="OH">Ohio</option>
+                      <option value="OK">Oklahoma</option>
+                      <option value="OR">Oregon</option>
+                      <option value="PA">Pennsylvania</option>
+                      <option value="RI">Rhode Island</option>
+                      <option value="SC">South Carolina</option>
+                      <option value="SD">South Dakota</option>
+                      <option value="TN">Tennessee</option>
+                      <option value="TX">Texas</option>
+                      <option value="UT">Utah</option>
+                      <option value="VT">Vermont</option>
+                      <option value="VA">Virginia</option>
+                      <option value="WA">Washington</option>
+                      <option value="WV">West Virginia</option>
+                      <option value="WI">Wisconsin</option>
+                      <option value="WY">Wyoming</option>
+                    </select>
+                    <div class="invalid-feedback">
+                      Select a state.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="zipFld">Zip / Postal code</label>
+                  <div class="input-group mb-3">
+                    <input type="text" id="zipFld" data-number-stepfactor="20" class="form-control" formControlName="zip"  [ngClass]="displayFieldCss('zip')"/>
+                    <div class="invalid-feedback">
+                      Enter a Zip code.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12 mb-3 text-right text-black-50">
+                  By clicking "Subscribe" you are agreeing to our <a href="/terms" class="btn btn-link p-0 m-0 align-baseline" target="_blank">terms and conditions</a>
+                </div>
+                <div class="col-md-6 offset-6 mb-3 text-right">
+                  <button class="btn btn-primary" (click)="save()" [disabled]="hasSubmitted && !billingForm.valid" ><i class="fa fa-spin fa-spinner p-2" *ngIf="hasSubmitted && billingForm.valid"></i>Subscribe</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

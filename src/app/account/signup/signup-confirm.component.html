@@ -1,0 +1,16 @@
+<div class="container skinny">
+  <div class="card mt-3 border-0">
+    <div class="card-body">
+        <div class="row">
+          <div class="col-12">
+            <h3 class="text-black mb-3 text-center">Your awesome, one more step!</h3>
+            <div class="alert alert-light text-center border-0" role="alert">You are almost ready to enjoy the first digital news service, bringing you all of the worlds latest news delivered to your tablet.</div>
+            <div class="text-center mb-3"><img src="assets/img/mail.png" class="w-50 opacity-5"></div>
+            <div class="alert alert-light text-center border-0" role="alert">An email has been sent to <b>{{user?.email}}</b> with a link to verify your account.  If you have note received the email after a few minutes, please check your spam folder.</div>
+          </div>
+          <button class="btn btn-primary btn-block" (click)="verify()">Resend Email</button>
+          <button class="btn  btn-link text-muted btn-block">Still haven't received it? Contact Support.</button>
+        </div>
+    </div>
+  </div>
+</div>

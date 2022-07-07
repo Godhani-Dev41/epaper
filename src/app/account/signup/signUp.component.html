@@ -1,0 +1,81 @@
+<div class="container skinny">
+  <div class="card mt-3">
+    <div class="card-body">
+      <form formGroup="signupForm" class="needs-validation" >
+        <div class="form-row">
+          <div class="col-6">
+            <h3 class="text-black-50 mb-3">Sign Up</h3>
+          </div>
+          <div class="col-12">
+            <p class="col-12 text-danger p-0 pb-0 mb-0" >{{failureMessage}}</p>
+          </div>
+          <div class="col-md-6 mb-3 mt-4">
+            <label for="firstNameFld">First name</label>
+            <div class="input-group mb-3">
+              <input type="text" id="firstNameFld" class="form-control" formControlName="firstName" [ngClass]="{'is-invalid': !signupForm?.get('firstName').valid && (signupForm?.get('firstName').dirty || signupForm?.get('firstName').touched)}">
+              <div class="invalid-feedback">
+                You must enter a first name.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3 mt-4">
+            <label for="lastNameFld">Last name</label>
+            <div class="input-group mb-3">
+              <input type="text" id="lastNameFld" class="form-control" formControlName="lastName" [ngClass]="{'is-invalid': !signupForm?.get('lastName').valid && (signupForm?.get('lastName').dirty || signupForm?.get('lastName').touched)}">
+              <div class="invalid-feedback">
+                You must enter a last name.
+              </div>
+            </div>
+          </div>
+          <div class="col-12 mb-3">
+            <label for="emailFld">Email</label>
+            <div class="input-group mb-3">
+              <input type="text" id="emailFld" class="form-control" formControlName="email" [ngClass]="{'is-invalid': !signupForm?.get('email').valid && (signupForm?.get('email').dirty || signupForm?.get('email').touched)}">
+              <div class="w-100">
+                <small id="emailHelp" class="form-text text-muted">
+                  Make sure you enter this correctly. It is used to authenticate your account.
+                </small>
+              </div>
+              <div class="invalid-feedback">
+                The email you entered is invalid.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12  mb-3">
+            <label for="orgEmailFld">Password</label>
+            <div class="input-group mb-3">
+              <input type="password" id="orgEmailFld" class="form-control" formControlName="password" [ngClass]="{'is-invalid': !signupForm?.get('password').valid && (signupForm?.get('password').dirty || signupForm?.get('password').touched)}" minlength="8" autocomplete="new-password">
+              <div class="w-100">
+                <small id="passwordHelp" class="form-text text-muted">
+                  Your password must be at least 8 characters long
+                </small>
+              </div>
+              <div class="invalid-feedback">
+                your password is invalid and must be at least 8 characters long.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12 mb-3">
+            <label for="verifyPasswordFld">Verify password</label>
+            <div class="input-group mb-3">
+              <input type="password" id="verifyPasswordFld" class="form-control" name="verifyPassword" formControlName="verifyPassword"  minlength="8"
+                     [ngClass]="{'is-invalid': !signupForm?.get('verifyPassword').valid && (signupForm?.get('verifyPassword').dirty || signupForm?.get('verifyPassword').touched)}">
+              <div class="w-100">
+                <small id="passwordVerifyHelp" class="form-text text-muted">
+                  Your password and this password verification must match.
+                </small>
+              </div>
+              <div class="invalid-feedback">
+                Your password does not match the password verification field.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12 mb-3 text-right">
+            <button class="btn btn-link text-black-50" (click)="goSignIn()">I already have an account</button><button class="btn btn-primary" (click)="doSignup()" >Sign up</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

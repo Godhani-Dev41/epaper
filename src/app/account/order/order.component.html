@@ -1,0 +1,660 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-2 mt-3">
+      <div class="nav flex-column nav-pills">
+        <a class="nav-link" href="/" r>Home</a>
+        <a class="nav-link active" href="/papers">Papers</a>
+        <a class="nav-link"  href="/settings" >Settings</a>
+      </div>
+    </div>
+    <div class="col-10 pt-3" *ngIf="subscriptionIsFailing">
+      <div class="alert alert-danger" role="alert" >
+        <p *ngIf="!subscriptionCanceled"><i class="fa fa-exclamation-triangle"></i><b>&nbsp;Oops! There is a problem with your account.</b></p>
+        <p>
+          <b>{{subscriptionFailedMessage}}</b>
+        </p>
+        <p *ngIf="!subscriptionCanceled">Please <a href="/contact" class="text-danger">contact support</a> to resolve the issue.</p>
+        <p *ngIf="subscriptionCanceled">If you would like to take advantage of all of the wonderful changes we have made. <a href="/settings" class="text-danger">Reactivate your plan</a></p>
+      </div>
+    </div>
+    <div class="col-10 pt-3" *ngIf="subscriptionIsPending">
+      <div class="alert alert-warning" role="alert" >
+        <p><i class="fa fa-exclamation-triangle"></i><b>&nbsp;Oops! There is a problem with your account.</b></p>
+        <p>
+          {{subscriptionFailedMessage}}
+        </p>
+        <p>Please <a href="/contact" class="alert-link">contact support</a> to resolve the issue.</p>
+      </div>
+    </div>
+    <div class="col-10 pt-3" *ngIf="!subscriptionIsFailing">
+      <div class="container-fluid m-0 p-0">
+        <div class="row">
+          <div class="col-12" *ngIf="!user?.emailVerified">
+            <div class="alert alert-warning" role="alert">
+                Your email address on file has not been verified. <a [href]="'/verify/'+user.authToken" class="alert-link">Please verify it now.</a>
+            </div>
+          </div>
+          <div class="col-10 subheading">
+            <div class="alert alert-light mr-4 p-0 pull-left w-auto" role="alert" >
+              <h4 class="alert-heading text-dark border-right pr-4">{{subscription?.name}} Plan&nbsp;<button class="btn btn-link mb-1" (click)="goUpgrade()">Upgrade</button></h4>
+            </div>
+            <div class="alert alert-light mr-5 p-0 pull-left w-auto animated fadeIn" role="alert"  [hidden]="isLoading">
+              <h4 class="alert-heading lead pt-2"><li class="fa fa-download"></li> {{remainingDownloads}} downloads remaining</h4>
+            </div>
+            <div class="alert alert-light m-0 p-0 pull-left w-auto animated fadeIn" role="alert"  [hidden]="isLoading">
+              <h4 class="alert-heading lead pt-2"><li class="fa fa-cloud-download"></li> {{remainingDataLoads}} data loads remaining</h4>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="pull-right"><button class="btn btn-outline-primary" [disabled]="isDownloading"  (click)="rechargeSubscription(rechargeContent)"><i class="fa fa-bolt"></i>&nbsp;Recharge</button></div>
+          </div>
+        </div>
+        <div class="container-fluid m-0 p-0" *ngIf="showHelp">
+          <div class="alert alert-success" role="alert" >
+            <h4 class="alert-heading text-success">Well done!</h4>
+            <p>You signed up, now click the "Add Paper" button to create your first paper. Once you have done that click the download button to get it on your reMarkable tablet.</p>
+            <hr>
+            <p class="mb-0">Make sure you double check your paper preferences before clicking the download button to ensure your paper gets generated correctly.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card mt-3" >
+        <div class="card-header"><div class="pull-left">Papers</div><div class="pull-right">
+          <button class="btn btn-primary" (click)="addUpdatePaper(paperContent)" [disabled]="!canAddPaper || ( isDownloading || isLoading)">
+            <i class="fa fa-plus-circle"></i>&nbsp;<span class="pr-0 pl-1">Add Paper</span>
+            <span class="pl-2 opacity-5" *ngIf="subscription?.name !== 'Premium'">{{remainingPapers > 0 ? remainingPapers : 'none'}}&nbsp;remaining</span>
+          </button></div></div>
+        <div *ngIf="!isLoading && papers?.length == 0" class="card-body text-center">
+          You currently do not have any papers.
+        </div>
+        <div *ngIf="isLoading" class="card-body text-center text-muted animated fadeOut">
+          <i class="fa fa-spin fa-spinner pr-1"></i>&nbsp;Please wait while we fetch your papers.
+        </div>
+        <ul *ngIf="papers && !isLoading" class="list-group pt-1 animated fadeIn" >
+          <li *ngFor="let paper of papers; let itemIndex = index" class="block-item list-group-item mb-1 ml-1 mr-1 border-0" [id]="paper?.objectId" >
+            <div class="icon pull-left" [ngbTooltip]="'Based on your settings a total of '+ (paper.posts.length - 1) + ' articles will be included in your paper.'">
+              <i class="fa fa-2x pr-1 fa-newspaper-o"></i>
+              <div class="badge count" *ngIf="paper.posts && paper.posts?.length > 0">{{paper.posts?.length - 1}}</div>
+            </div>
+            <div class="pt-1 pl-1 pull-left">{{paper.countries && paper.countries['name'] ? paper.countries['name'] +",&nbsp;" :""}}{{paper.updatedAt | date:'fullDate'}}</div>
+            <!--a *ngIf="(paper.posts.length - 1) > 0 && paper.platforms['code'] === 'reMarkable'" class="btn btn-sm btn-outline-primary pull-right ml-2" (click)="openPaperInstall(templateInstallContent)">Save to tablet</a-->
+            <a *ngIf="(paper.posts?.length - 1) > 0 && paper.platforms?.code === 'reMarkable'" class="btn btn-sm btn-outline-primary pull-right ml-2" target="_blank" href="http://10.11.99.1">Save to tablet</a>
+            <button *ngIf="(paper.posts.length - 1) > 0 || paper.type.toLowerCase() == 'web'" class="btn btn-sm btn-primary pull-right" [ngClass]="{'btn-danger' : downloadFailed && this.selectedPaper?.objectId == paper.objectId}" (click)="download(paper)" [disabled]="!canDownload || isDownloading">
+              <i class="fa fa-download pr-1" *ngIf="(!isDownloading && !downloadFailed) || this.selectedPaper?.objectId !== paper.objectId"></i>
+              <i class="fa fa-spin fa-spinner pr-1" *ngIf="isDownloading && !downloadFailed && this.selectedPaper?.objectId == paper.objectId"></i>
+              <i class="fa fa-warning pr-1" *ngIf="downloadFailed && this.selectedPaper?.objectId == paper.objectId"></i>
+              download
+            </button>
+            <button *ngIf="(paper.posts.length - 1) === 0" class="btn btn-outline-secondary text-black-50 pull-right border-0 pr-0" [disabled]="true">No articles found.</button>
+            <button *ngIf="(paper.posts.length - 1) > 0" class="btn btn-sm btn-outline-primary pull-right mr-2" (click)="doSavePaper(paper, true)" [disabled]="!canAddPaper || isDownloading"><i class="fa fa-refresh pr-1"></i>Duplicate Paper</button>
+            <div *ngIf="(paper.posts.length - 1) > 0" class="info pt-1 pull-right pr-4 text-muted">downloaded {{downloads[itemIndex]}} times</div>
+            <button class="btn btn-sm pull-right pr-4" (click)="addUpdatePaper(paperContent,itemIndex)"><i class="fa fa-pencil"></i></button>
+            <button class="btn btn-sm pull-right" (click)="doRemove(paper)"><i class="fa fa-trash"></i></button>
+            <div class="info border-right pull-right">&nbsp;</div>
+            <div class="info pull-right mr-2" *ngIf="paper.includePhotos && paper.type.toLowerCase() !== 'web'" [ngbTooltip]="'Photos will be included in your paper.'"><span class="badge badge-light ml-1"><i class="fa fa-2x fa-photo"></i></span></div>
+            <div class="info pull-right mr-2" *ngIf="paper.keywords && paper.keywords.length > 0" [ngbTooltip]="getKeywords(paper)"><span class="badge badge-secondary ml-1">{{paper.keywords[0].display}}</span><div class="badge count" [hidden]="paper.keywords.length == 1" >{{paper.keywords.length}}</div></div>
+            <div class="info pull-right mr-2" *ngIf="paper.websites && paper.websites.length > 0" [ngbTooltip]="getWebsites(paper)"><span class="badge badge-secondary ml-1">{{paper.websites[0].display}}</span><div class="badge count" [hidden]="paper.websites.length == 1" >{{paper.websites.length}}</div></div>
+            <div class="info pull-right mr-2" *ngIf="paper.people && paper.people.length > 0" [ngbTooltip]="getPeople(paper)"><span class="badge badge-secondary ml-1">{{paper.people[0].display}}</span><div class="badge count" [hidden]="paper.people.length == 1" >{{paper.people.length}}</div></div>
+            <div class="info pull-right mr-2" *ngIf="paper.organizations && paper.organizations.length > 0" [ngbTooltip]="getOrganizations(paper)"><span class="badge badge-secondary ml-1">{{paper.organizations[0].display}}</span><div class="badge count" [hidden]="paper.organizations.length == 1" >{{paper.organizations.length}}</div></div>
+            <div class="info pull-right mr-2" *ngIf="paper.interests && paper.interests.length > 0" [ngbTooltip]="getInterests(paper)"><span class="badge badge-secondary ml-1">{{paper.interests[0].name}}</span><div class="badge count" [hidden]="paper.interests.length == 1">{{paper.interests.length}}</div></div>
+            <div class="info pull-right mr-2" *ngIf="paper.networks && paper.networks.length > 0" [ngbTooltip]="getNetworks(paper)"><span class="badge badge-secondary ml-1">{{paper.networks[0].name}}</span><div class="badge count" [hidden]="paper.networks.length == 1">{{paper.networks.length}}</div></div>
+            <div class="info pull-right mr-2" *ngIf="paper.webPages && paper.webPages.length > 0" [ngbTooltip]="getWebPages(paper)"><span class="badge badge-secondary ml-1">{{paper.webPages[0].display}}</span><div class="badge count" [hidden]="paper.webPages.length == 1" >{{paper.webPages.length}}</div></div>
+            <div class="info pull-right mr-2" *ngIf="paper.preferredLanguage && paper.preferredLanguage.length > 0" [ngbTooltip]="getLanguages(paper)"><span class="badge badge-secondary ml-1">{{paper.preferredLanguage[0]?.name}}</span><div class="badge count" [hidden]="paper.preferredLanguage.length == 1">{{paper.preferredLanguage.length}}</div></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #rechargeContent let-cl="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Recharge Subscription</h4>
+    <button type="button" class="close" aria-label="Close" (click)="cl('Cross click');doCancel()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body p-3">
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="alert alert-success" role="alert" *ngIf="orderSucceeded">
+          <p><i class="fa fa-check"></i><b>&nbsp;Congratulations! Your subscription has been recharged successfully.</b></p>
+          <p>
+            Your new subscription limits will be listed above the list of your papers.
+          </p>
+        </div>
+        <div class="alert alert-danger" role="alert"  *ngIf="!orderSucceeded && failureMessage?.length > 0">
+          <p><i class="fa fa-exclamation-triangle"></i><b>&nbsp;Oops! There was a problem processing your payment.</b></p>
+          <p>
+            {{failureMessage}}
+          </p>
+        </div>
+        <div class="alert alert-light m-0 mr-5 p-0 w-auto pull-left">
+          <h4 class="alert-heading lead pt-2"><li class="fa fa-download"></li> {{remainingDownloads + rechargeTotal}} <span class="text-black-50">downloads</span></h4>
+        </div>
+        <div class="alert alert-light m-0 p-0 w-auto pull-left">
+          <h4 class="alert-heading lead pt-2"><li class="fa fa-cloud-download"></li> {{remainingDataLoads + rechargeTotal}} <span class="text-black-50">data loads</span></h4>
+        </div>
+      </div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-12">
+        <form [formGroup]="rechargeForm">
+          <div class="form-row">
+            <div class="col-10">
+              <div class="custom-slider">
+                <ngx-slider [value]="verticalSlider.value" [options]="verticalSlider.options"
+                (valueChange)="quantityChange($event)"></ngx-slider>
+              </div>
+              <!-- <ion-range-slider #quantityFld
+                                type = "single"
+                                min = 0
+                                [from] = "rechargeItem?.quantity"
+                                grid_num="10"
+                                grid="true"
+                                max="20"
+                                skin="round"
+                                postfix=" quantity"
+                                decorate_both="false"
+                                [disable]="replaceCard"
+                                (onUpdate)="quantityUpdate($event)"
+                                (onChange)="quantityChange($event)"
+                                (onFinish)="quantityFinish($event)">
+              </ion-range-slider> -->
+            </div>
+            <div class="col-2">
+              <h2 class="text-center pt-1"><span class="align-middle" [ngClass]="{'text-muted':replaceCard}">${{rechargeTotalPrice.toFixed(2)}}</span></h2>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-12">
+        <div class="card mb-3">
+          <div class="card-body" *ngIf="!replaceCard">
+            <p class="pb-0 mb-0">Charges will appear on your credit card instantly once purchased.</p>
+            <hr class="w-100"/>
+            <h4>Credit card</h4>
+            <div class="row">
+              <div class="col-6">
+                <div class="text-muted">
+                  <i [class]="'card-logo pr-1 fa fa-2x fa-cc-' +
+                (defaultSource?.card?.brand.toLowerCase().indexOf('express') !== -1 ? 'amex':
+                defaultSource?.card?.brand.toLowerCase().replace(' ', '-'))"
+                  ></i>
+                  <span>•••• •••• •••• {{defaultSource?.card?.last4}}</span></div>
+              </div>
+              <div class="col-6">
+                <div class="text-muted">BILLING ADDRESS</div>
+                <address>
+                  <div class="mt-1"><strong>{{defaultSource?.owner?.name}}</strong></div>
+                  <div>{{defaultSource?.owner?.address.line1}}</div>
+                  <div *ngIf="defaultSource?.owner?.address.line2">{{defaultSource?.owner?.address.line2}}</div>
+                  <div>{{defaultSource?.owner?.address.city}}, {{defaultSource?.owner?.address.state}} {{defaultSource?.owner?.address.postal_code}} {{defaultSource?.owner?.address?.country}}</div>
+                </address>
+              </div>
+              <div class="col-6">
+                <div>EXPIRES</div>
+                {{defaultSource?.card?.exp_month}} / {{defaultSource?.card?.exp_year}}
+              </div>
+            </div>
+          </div>
+          <div class="card-body" [hidden]="!replaceCard">
+            <p class="pb-0 mb-0">Charges will appear on your credit card instantly once purchased.</p>
+            <hr class="w-100"/>
+            <form [formGroup]="billingForm">
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="cardHolderFld">Name on card</label>
+                  <input type="text" class="form-control" id="cardHolderFld" name="cardHolder" placeholder="" formControlName="cardHolder" [ngClass]="displayFieldCss('cardHolder')"/>
+                  <div class="invalid-feedback" *ngIf="isFieldValid('cardHolder')">
+                    your name on card is invalid.
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="cardHolderFld">Card</label>
+                  <div id="card-element"></div>
+                  <div id="card-info" #cardInfo></div>
+                  <div id="card-errors" class="text-danger" role="alert" *ngIf="error">{{ error }}</div>
+                </div>
+                <div class="form-row">
+                  <hr class="w-100"/>
+                  <h4>Billing Address</h4>
+                  <hr class="w-100"/>
+                  <div class="col-md-12 mb-3">
+                    <label for="street1Fld">Street 1</label>
+                    <div class="input-group mb-3">
+                      <input type="text" id="street1Fld" data-number-stepfactor="20" class="form-control" formControlName="street1" [ngClass]="displayFieldCss('street1')"/>
+                      <div class="invalid-feedback">
+                        your address is invalid.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label for="street1Fld">Street 2</label>
+                    <div class="input-group mb-3">
+                      <input type="text" id="street2Fld" data-number-stepfactor="20" class="form-control" formControlName="street2" />
+                    </div>
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label for="cityFld">City</label>
+                    <div class="input-group mb-3">
+                      <input type="text" id="cityFld" data-number-stepfactor="20" class="form-control" formControlName="city" [ngClass]="displayFieldCss('city')"/>
+                      <div class="invalid-feedback">
+                        Enter a city.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label for="stateFld">Country</label>
+                    <div class="input-group mb-3">
+                      <select id="countryBillFld" class="form-control" formControlName="country" [ngClass]="displayFieldCss('country')" (change)="countryChanged()">
+                        <option [value]="country['code']" *ngFor="let country of countries; let itemIndex = index" [selected]="country['code']==='US'">{{country["name"]}}</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Select a country.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3" *ngIf="!isInternational">
+                    <label for="stateFld">State</label>
+                    <div class="input-group mb-3">
+                      <select id="stateFld" class="form-control" formControlName="state" [ngClass]="displayFieldCss('state')">
+                        <option value="AL">Alabama</option>
+                        <option value="AK">Alaska</option>
+                        <option value="AZ">Arizona</option>
+                        <option value="AR">Arkansas</option>
+                        <option value="CA">California</option>
+                        <option value="CO">Colorado</option>
+                        <option value="CT">Connecticut</option>
+                        <option value="DE">Delaware</option>
+                        <option value="DC">District Of Columbia</option>
+                        <option value="FL">Florida</option>
+                        <option value="GA">Georgia</option>
+                        <option value="HI">Hawaii</option>
+                        <option value="ID">Idaho</option>
+                        <option value="IL">Illinois</option>
+                        <option value="IN">Indiana</option>
+                        <option value="IA">Iowa</option>
+                        <option value="KS">Kansas</option>
+                        <option value="KY">Kentucky</option>
+                        <option value="LA">Louisiana</option>
+                        <option value="ME">Maine</option>
+                        <option value="MD">Maryland</option>
+                        <option value="MA">Massachusetts</option>
+                        <option value="MI">Michigan</option>
+                        <option value="MN">Minnesota</option>
+                        <option value="MS">Mississippi</option>
+                        <option value="MO">Missouri</option>
+                        <option value="MT">Montana</option>
+                        <option value="NE">Nebraska</option>
+                        <option value="NV">Nevada</option>
+                        <option value="NH">New Hampshire</option>
+                        <option value="NJ">New Jersey</option>
+                        <option value="NM">New Mexico</option>
+                        <option value="NY">New York</option>
+                        <option value="NC">North Carolina</option>
+                        <option value="ND">North Dakota</option>
+                        <option value="OH">Ohio</option>
+                        <option value="OK">Oklahoma</option>
+                        <option value="OR">Oregon</option>
+                        <option value="PA">Pennsylvania</option>
+                        <option value="RI">Rhode Island</option>
+                        <option value="SC">South Carolina</option>
+                        <option value="SD">South Dakota</option>
+                        <option value="TN">Tennessee</option>
+                        <option value="TX">Texas</option>
+                        <option value="UT">Utah</option>
+                        <option value="VT">Vermont</option>
+                        <option value="VA">Virginia</option>
+                        <option value="WA">Washington</option>
+                        <option value="WV">West Virginia</option>
+                        <option value="WI">Wisconsin</option>
+                        <option value="WY">Wyoming</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Select a state.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3" *ngIf="isInternational">
+                    <label for="otherStateFld">State / Province</label>
+                    <div class="input-group mb-3">
+                      <input type="text" id="otherStateFld" data-number-stepfactor="20" class="form-control" formControlName="state" [ngClass]="displayFieldCss('state')" placeholder="optional" />
+                      <div class="invalid-feedback">
+                        Enter State.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="zipFld">Zip / Postal code</label>
+                    <div class="input-group mb-3">
+                      <input type="text" id="zipFld" data-number-stepfactor="20" class="form-control" formControlName="zip" [ngClass]="displayFieldCss('zip')" />
+                      <div class="invalid-feedback">
+                        Enter a Zip / Postal code.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer" *ngIf="!replaceCard">
+            <div class="row">
+              <div class="col-6">
+              <span *ngIf="defaultSource?.status" class="border rounded p-2"
+                    [ngClass]="{
+                    'border-success text-success': defaultPaymentMethod?.isActive,
+                    'border-danger text-danger': !defaultPaymentMethod?.isActive }">
+                {{defaultPaymentMethod?.isActive ? 'active' : 'inactive'}}</span>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-outline-secondary pull-right" (click)="toggleReplaceCard()">Replace card info</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer" *ngIf="replaceCard">
+            <div class="row">
+              <div class="col-12">
+                <div class="pull-right">
+                  <button class="btn btn-outline-secondary mr-2" (click)="toggleReplaceCard(false)">Cancel</button>
+                  <button class="btn btn-primary" (click)="toggleReplaceCard(true)" [disabled]="isLoading"> <i class="fa fa-spin fa-spinner p-1" *ngIf="isLoading"></i>&nbsp;Save card info</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-body" *ngIf="!replaceCard">
+            <div class="row">
+              <div class="col-12 text-muted ">Enable the following, if you want your subscription to automatically be recharged with <b>1</b> recharge credit totaling <b>${{this.rechargePrice}}</b>. Your account limits have been reached.</div>
+              <hr class="w-100">
+              <div class="col-6"><ui-switch class="pull-left ml-1" (change)="autoRechargePlan($event)" [checked]="false"></ui-switch><div class="pull-left mt-1 pl-2" [ngClass]="{'text-black-50':!doAutoRecharge}">Auto recharge your subscription</div></div>
+              <div class="col-6 text-right">
+                <div class="pt-2" [ngClass]="{'text-black-50':!doAutoRecharge}">
+                  <input class="form-check-input" type="checkbox" value="true" id="showAgainRe" (change)="setAutoRechargeWarning($event)" [disabled]="!doAutoRecharge" [checked]="toggleShowWarning">
+                  <label class="form-check-label" for="showAgainRe">
+                    Warn me when my limits get low
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-info text-right animated fadeIn" role="alert" *ngIf="showConfirm">
+          <div class="lead">You account is about to be charged a total of <span><b>${{rechargeTotalPrice.toFixed(2)}}</b></span></div>
+          <div class="row mb-1">
+            <div class="col-12">
+              <div class="pull-right">
+                <div class="alert-info m-0 p-0 w-auto pull-right">
+                  <h4 class="lead text-info pt-2"><li class="fa fa-cloud-download"></li> {{rechargeQuantityOffset * fromIncrement}} <span class="text-info">more data loads</span></h4>
+                </div>
+                <div class="alert-info m-0 p-0 w-auto pull-right mr-3">
+                  <h4 class="lead text-info pt-2"><li class="fa fa-download"></li> {{rechargeQuantityOffset * fromIncrement}} <span class="text-info">more downloads</span></h4>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex flex-row-reverse">
+            <button class="btn btn-info" (click)="doRecharge()"><i class="fa fa-spin fa-spinner pr-1" *ngIf="orderIsLoading"></i>Proceed</button><button class="btn btn-outline-info mr-2" (click)="showConfirm = false">Cancel</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary pull-right" (click)="rechargeConfirm()" [disabled]="fromIncrement == 0">
+          Recharge my subscription
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary mr-2" (click)="doClose()">Done</button>
+  </div>
+</ng-template>
+<ng-template #autoChargeContent let-a="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Auto Recharge</h4>
+    <button type="button" class="close" aria-label="Close" (click)="a('Cross click');doCancel()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Warning: You have enabled the auto recharge setting and you have reached your plans limits. By clicking the button below you will instantly charged a total of <b>${{rechargePrice}} USD</b>. If you want to cancel, you can do so by clicking the cancel button below.</p>
+    <p>You can disable this feature, by selecting the Recharge button above and turn off the switch in the dialog that appears.</p>
+  </div>
+  <div class="modal-footer">
+    <form class="form-inline">
+      <div class="form-group row mr-3">
+        <input class="form-check-input" type="checkbox" value="true" id="showAgain" (change)="setAutoRechargeWarning($event)" [checked]="toggleShowWarning">
+        <label class="form-check-label" for="showAgain">
+          Don't warn me again.
+        </label>
+      </div>
+      <button type="button" class="btn btn-outline-secondary mr-2" (click)="a('Cross click');doCancel()">Cancel</button>
+      <button type="button" class="btn btn-primary" (click)="doRecharge(1)">
+        Recharge my plan
+      </button>
+    </form>
+  </div>
+</ng-template>
+<ng-template #templateInstallContent let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Save to tablet</h4>
+    <button type="button" class="close" aria-label="Close" (click)="c('Cross click');doCancel()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>To install a paper onto your tablet, navigate to your downloads folder and find the newly created paper and drag and drop it on the area below. The file name will begin with 'epaperweekly' and will be in pdf format.</p>
+    <iframe src="https://epaperweekly-gw.herokuapp.com/redirect.php?url=http://10.11.99.1" class="w-100 border-0"></iframe>
+    <div>
+      <hr/>
+      <p>Try the following if you don't see a list of the files on your tablet above:</p>
+      <ul>
+        <li>Ensure your tablet has not gone in standby mode, or it is not powered off.</li>
+        <li>Make sure your tablet is connected to your computer using a working USB cable.</li>
+        <li>Navigate to your reMarkable tablet's settings under the storage tab, and enable the USB web interface switch.</li>
+      </ul>
+    </div>
+  </div>
+</ng-template>
+<ng-template #paperContent let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">{{selectedPaper ? 'Edit' : 'Add'}} Paper</h4>
+    <button type="button" class="close"  aria-label="Close" (click)="d('Cross click');doCancel()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="alert alert-success" role="alert" *ngIf="subscription?.name !=='Premium'">
+      <h4 class="alert-heading">{{remainingPapers}} Add credits available</h4>
+      <p>If you run out, and would like to add more papers. You can <a href="/settings" class="alert-link">upgrade your plan</a>.</p>
+    </div>
+      <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" (navChange)="onNavChange($event)" class="nav-tabs">
+        <li title="News Paper" [ngbNavItem]="1">
+          <a ngbNavLink>News Paper</a>
+          <ng-template ngbNavContent>
+              <form [formGroup]="newsForm">
+                <div class="form-row">
+                  <div class="col-12 pl-1 pr-1 mb-1 mt-3">
+                    <label for="news-platformFld">Tablet</label>
+                    <ngx-select-dropdown id="news-platformFld" formControlName="platforms" (change)="platformSelectionChanged($event)" class="option-text-lower" [config]="platformsConfig" [multiple]=false [options]="platforms"></ngx-select-dropdown>
+                  </div>
+                  <div class="col-12 pl-1 pr-1 mt-3">
+                    <h4 class="lead text-muted">Choose your interests, keywords, preferred language and the location you would like your news sourced from.</h4>
+                    <hr>
+                  </div>
+                  <p class="col-12 text-danger pb-0 mb-0" *ngIf="failureMessage">{{failureMessage}}</p>
+                  <div class="col-md-12 pl-1 pr-1 mt-1 mb-4">
+                    <label for="news-keywordsFld">Keywords</label>
+                    <tag-input id="news-keywordsFld" formControlName="keywords"
+                               (onBlur)="onInputBlurred($event)"
+                               (onFocus)="onInputFocused($event)"
+                               (onSelect)="onSelected($event)"
+                               (onRemove)="onItemRemoved($event)"
+                               (onTextChange)="onTextChange($event)"
+                               theme='dark'
+                               placeholder="Add keyword"
+                               secondaryPlaceholder = "Enter keywords"
+                               (onAdd)="onItemAdded($event)">
+                    </tag-input>
+                    <div class="w-100">
+                      <small class="form-text text-muted">
+                        You must hit enter after entering a value in order to add it.
+                      </small>
+                    </div>
+                  </div>
+                  <div class="col-md-12 pl-1 pr-1  mt-0">
+                    <label for="news-networksFld">News Networks</label>
+                    <ngx-select-dropdown id="news-networksFld" formControlName="networks" (change)="networksSelectionChanged($event)" class="option-text-lower" [config]="networksConfig" [multiple]=true [options]="networks"></ngx-select-dropdown>
+                  </div>
+                  <div class="col-md-12 pl-1 pr-1 mt-4">
+                    <label for="news-topicsFld">News Topics</label>
+                    <ngx-select-dropdown id="news-topicsFld" formControlName="topics" (change)="topicsSelectionChanged($event)" class="option-text-lower" [config]="topicsConfig" [multiple]=true [options]="topics"></ngx-select-dropdown>
+                  </div>
+                  <div class="col-md-12 pl-1 pr-1 mt-4">
+                    <label for="news-countryFld">Country</label>
+                    <ngx-select-dropdown id="news-countryFld" formControlName="countries" (change)="countrySelectionChanged($event)" class="option-text-lower" [config]="countryConfig" [multiple]=false [options]="countries"></ngx-select-dropdown>
+                  </div>
+                  <div class="col-md-12 pl-1 pr-1 mt-4 mb-3">
+                    <label for="news-languageFld">Preferred Languages</label>
+                    <ngx-select-dropdown id="news-languageFld" formControlName="languages" (change)="languageSelectionChanged($event)" class="option-text-lower" [config]="languageConfig" [multiple]=true [options]="languages"></ngx-select-dropdown>
+                  </div>
+                  <div class="col-6 pl-1 pr-1 "><ui-switch class="pull-left ml-1" (change)="setIncludePhotos($event)" [checked]="includePhotos"></ui-switch><div class="pull-left mt-1 pl-2" [ngClass]="{'text-black-50':!includePhotos}">Include photos in articles.</div></div>
+                </div>
+              </form>
+          </ng-template>
+        </li>
+        <li [ngbNavItem]="2">
+          <a ngbNavLink>Research Paper</a>
+          <ng-template ngbNavContent>
+            <form [formGroup]="researchForm">
+              <div class="form-row">
+                <div class="col-12 pl-1 pr-1 mb-1 mt-3">
+                  <label for="research-platformFld">Tablet</label>
+                  <ngx-select-dropdown id="research-platformFld" formControlName="platforms" (change)="platformSelectionChanged($event)" class="option-text-lower" [config]="platformsConfig" [multiple]=false [options]="platforms"></ngx-select-dropdown>
+                </div>
+                <div class="col-12 pl-1 pr-1 mt-3">
+                  <h4 class="lead text-muted">Choose your interests, keywords, websites, people, organizations, preferred language and the location you would like your articles sourced from.</h4>
+                  <hr>
+                </div>
+                <p class="col-12 text-danger pb-0 mb-0" *ngIf="failureMessage">{{failureMessage}}</p>
+                <div class="col-md-12 pl-1 pr-1 mt-1 mb-2">
+                  <label for="keywordsFld">Keywords</label>
+                  <tag-input id="keywordsFld" formControlName="keywords"
+                             theme='dark'
+                             placeholder="Add keyword"
+                             secondaryPlaceholder = "Example: Oranges"
+                             (onAdd)="onItemAdded($event)">
+                  </tag-input>
+                  <div class="w-100">
+                    <small class="form-text text-muted">
+                     You must hit enter after entering a value in order to add it.
+                    </small>
+                  </div>
+                </div>
+                <div class="col-md-12 pl-1 pr-1 mt-0 mb-2">
+                  <label for="websitesFld">Websites</label>
+                  <tag-input id="websitesFld" formControlName="websites"
+                             theme='dark'
+                             placeholder="Add Website"
+                             secondaryPlaceholder = "Example: apple.com"
+                             (onAdd)="onItemAdded($event)">
+                  </tag-input>
+                  <div class="w-100">
+                    <small class="form-text text-muted">
+                      You must hit enter after entering a value in order to add it.
+                    </small>
+                  </div>
+                </div>
+                <div class="col-md-12 pl-1 pr-1 mt-0 mb-2">
+                  <label for="peopleFld">People</label>
+                  <tag-input id="peopleFld" formControlName="people"
+                             theme='dark'
+                             placeholder="Add Person"
+                             secondaryPlaceholder = "Example: Bob Marley"
+                             (onAdd)="onItemAdded($event)">
+                  </tag-input>
+                  <div class="w-100">
+                    <small class="form-text text-muted">
+                      You must hit enter after entering a value in order to add it.
+                    </small>
+                  </div>
+                </div>
+                <div class="col-md-12 pl-1 pr-1 mt-0">
+                  <label for="orgFld">Organizations</label>
+                  <tag-input id="orgFld" formControlName="organizations"
+                             (onBlur)="onInputBlurred($event)"
+                             (onFocus)="onInputFocused($event)"
+                             (onSelect)="onSelected($event)"
+                             (onRemove)="onItemRemoved($event)"
+                             (onTextChange)="onTextChange($event)"
+                             theme='dark'
+                             placeholder="Add Organization"
+                             secondaryPlaceholder = "Example: Google"
+                             (onAdd)="onItemAdded($event)">
+                  </tag-input>
+                  <div class="w-100">
+                    <small class="form-text text-muted">
+                      You must hit enter after entering a value in order to add it.
+                    </small>
+                  </div>
+                </div>
+                <div class="col-md-12 pl-1 pr-1 mt-4">
+                  <label for="topicsFld">Research Topics</label>
+                  <ngx-select-dropdown id="topicsFld" formControlName="topics" (change)="topicsSelectionChanged($event)" class="option-text-lower" [config]="topicsConfig" [multiple]=true [options]="topics"></ngx-select-dropdown>
+                </div>
+                <div class="col-md-12 pl-1 pr-1 mt-4">
+                  <label for="countryFld">Country</label>
+                  <ngx-select-dropdown id="countryFld" formControlName="countries" (change)="countrySelectionChanged($event)" class="option-text-lower" [config]="countryConfig" [multiple]=false [options]="countries"></ngx-select-dropdown>
+                </div>
+                <div class="col-md-12 pl-1 pr-1 mt-4 mb-3">
+                  <label for="languageFld">Preferred Languages</label>
+                  <ngx-select-dropdown id="languageFld" formControlName="languages" (change)="languageSelectionChanged($event)" class="option-text-lower" [config]="languageConfig" [multiple]=true [options]="languages"></ngx-select-dropdown>
+                </div>
+                <div class="col-6 pl-1 pr-1 "><ui-switch class="pull-left ml-1" (change)="setIncludePhotos($event)" [checked]="includePhotos"></ui-switch><div class="pull-left mt-1 pl-2" [ngClass]="{'text-black-50':!includePhotos}">Include photos in articles.</div></div>
+              </div>
+            </form>
+          </ng-template>
+        </li>
+        <li [ngbNavItem]="3">
+          <a ngbNavLink>Website Paper</a>
+          <ng-template ngbNavContent>
+            <form [formGroup]="webForm">
+              <div class="form-row">
+                <div class="col-12 pl-1 pr-1 mb-1 mt-3">
+                  <label for="web-platformFld">Tablet</label>
+                  <ngx-select-dropdown id="web-platformFld" formControlName="platforms" (change)="platformSelectionChanged($event)" class="option-text-lower" [config]="platformsConfig" [multiple]=false [options]="platforms"></ngx-select-dropdown>
+                </div>
+                <div class="col-12 pl-1 pr-1 mt-3">
+                  <h4 class="lead text-muted">Create a document sourced from web links. Valid links entered must include either the <b>http</b> or the <b>https</b> in the value.</h4>
+                  <hr>
+                </div>
+                <p class="col-12 text-danger pb-0 mb-0" *ngIf="failureMessage">{{failureMessage}}</p>
+                <div class="col-md-12 pl-1 pr-1 mt-1 mb-4">
+                  <label for="webUrlsFld">Web link</label>
+                  <tag-input id="webUrlsFld" formControlName="urls"
+                             theme='dark'
+                             placeholder="Add Link"
+                             [maxItems]="1"
+                             secondaryPlaceholder = "Example: http://a.com"
+                             (onAdd)="onItemAdded($event)">
+                  </tag-input>
+                  <div class="w-100">
+                    <small class="form-text text-muted">
+                      You must hit enter after entering a value in order to add it.
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </ng-template>
+        </li>
+      </ul>
+    <div [ngbNavOutlet]="nav"></div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="doSavePaper()" [disabled]="isLoading">
+      <i class="fa fa-spin fa-spinner pr-1" *ngIf="isLoading"></i>
+      Done
+    </button>
+  </div>
+</ng-template>

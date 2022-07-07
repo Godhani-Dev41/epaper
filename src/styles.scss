@@ -1,0 +1,58 @@
+@import "assets/vendor/css/bootstrap.min.css";
+@import 'assets/vendor/css/materialdesignicons.min.css';
+.card-header > div, .card-footer > div  {
+  line-height: 38px;
+}
+.card-logo {
+  vertical-align: middle;
+}
+.opacity-5 {
+  opacity: 0.5;
+}
+
+/**
+ * The CSS shown here will not be introduced in the Quickstart guide, but shows
+ * how you can use CSS to style your Element's container.
+ */
+.StripeElement {
+  background-color: white;
+  padding: 3px 12px;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+}
+
+.StripeElement--focus {
+  box-shadow: 0 1px 3px 0 #cfd7df;
+}
+
+.StripeElement--invalid {
+  border-color: #fa755a;
+}
+
+.StripeElement--webkit-autofill {
+  background-color: #fefde5 !important;
+}
+
+@media (min-width: 1200px){
+  .container.skinny {
+    max-width: 1140px;
+  }
+}
+@media (min-width: 992px) {
+  .container.skinny {
+    max-width: 900px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container.skinny {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 576px) {
+  .container.skinny {
+    max-width: 550px;
+  }
+}
+

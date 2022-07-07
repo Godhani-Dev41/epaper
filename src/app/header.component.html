@@ -1,0 +1,10 @@
+<nav class="navbar navbar-light bg-white" *ngIf="!isPaperActive && !isHome">
+  <a class="navbar-brand" href="/">
+    <img src="assets/img/epaperweekly.png"  height="50" class="d-inline-block align-top"  alt="epaperweekly.com | Digital news delivered to your reMarkable tablet">
+  </a>
+  <div class="pull-right">
+    <button class="btn btn-sm btn-link text-dark mr-0 pr-0" (click)="goSigninOrSignOut()" [hidden]="isSignupActive || !cachedUser" ><i class="fa" [ngClass]="{'fa-unlock': isLoginActive,'fa-lock':!isLoginActive }"></i>&nbsp;Sign {{this.isLoginActive == true ? 'out' : 'in'}}</button>
+    <button class="btn btn-sm btn-primary" (click)="goSignup()"  [hidden]="!isSignupActive">Sign up</button>
+    <button class="btn btn-link text-black-50 lead nav-link" (click)="goBack()"  [hidden]="!isFooterSection"><i class="fa fa-chevron-left"></i>&nbsp;Back</button>
+  </div>
+</nav>

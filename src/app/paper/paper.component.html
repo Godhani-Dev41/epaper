@@ -1,0 +1,43 @@
+<div class="news-container" *ngIf="hasLoaded && isAuthorized">
+  <div class="news-header">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center logo"></div>
+      </div>
+    </div>
+    <div class="news-subheader"> {{location}}, {{today | date:'fullDate'}}</div>
+  </div>
+  <div  *ngFor="let post of paper.posts; index as i;" [id]="post.uuid">
+    <div *ngIf="i == 0">
+      <div class="lead title bg-quote p-4 mt-0 mb-0">
+        <blockquote><p class="text-left quotation">{{post.text}}</p>
+          <footer class="blockquote-footer text-left"><cite title="Source Title">{{post.author}}</cite></footer>
+        </blockquote>
+      </div>
+    </div>
+    <div *ngIf="i > 0" class="article">
+      <div class="lead title">{{post.title}}</div>
+      <div *ngIf="post?.thread?.main_image" class="border border-dark" [ngStyle]="{
+          'height':'400px',
+          'background-color':'#000000',
+          'background-image':'url('+post?.thread?.main_image+')',
+          'background-repeat':'no-repeat',
+          'background-position':'center center',
+          'background-size':'contain'}">&nbsp;</div>
+      <p class="author font-weight-bold" *ngIf="post.author.length > 1">
+        By {{post.author}} | <span class="text-black-50">{{post.thread?.site}}</span>
+      </p>
+      <div class="twoColumns">
+        <div [innerHTML]="post?.text | nl2br" class="text"></div>
+      </div>
+      <footer><div class="lead"><b>A{{i}}</b></div></footer>
+    </div>
+  </div>
+  <div class="footer p-2 mt-5"><img src="assets/img/epaperweekly_powered_einkpads.png" class="w-auto"></div>
+</div>
+<div class="text-center m-4" *ngIf="hasLoaded && !isAuthorized">
+  <div class="alert alert-danger" role="alert" >
+    <h4 class="alert-heading">You are not authorized to view this content</h4>
+    <p class="mb-0">Please contact our support team at epaperweekly.com.</p>
+  </div>
+</div>
