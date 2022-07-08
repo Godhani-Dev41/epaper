@@ -2,6 +2,10 @@
   "name": "epaperweekly",
   "version": "0.0.0",
   "license": "MIT",
+  "engines": {
+    "node": "16.15.0",
+    "npm": "8.5.5"
+  },
   "scripts": {
     "ng": "ng",
     "dev": "ng serve",
@@ -14,11 +18,7 @@
     "pree2e": "webdriver-manager update --standalone false --gecko false",
     "minify": "uglifyjs dist/main.js --compress --output dist/main.js",
     "precache": "sw-precache --verbose --config=sw-precache-config.js",
-    "postinstall": "ng build --aot --prod"
-  },
-  "engines": {
-    "node": "16.15.0",
-    "npm": "8.5.5"
+    "heroku-postbuild": "ng build --prod"
   },
   "private": true,
   "dependencies": {
@@ -48,7 +48,7 @@
     "buffer": "6.0.3",
     "compression": "1.7.4",
     "core-js": "^3.19.0",
-    "express": "^4.18.1",
+    "express": "^4.17.2",
     "express-http-to-https": "^1.1.4",
     "file-saver": "2.0.5",
     "firebase": "9.2.0",
@@ -67,7 +67,6 @@
     "ngx-ui-switch": "12.0.1",
     "node-schedule": "2.0.0",
     "node-sessionstorage": "^1.0.0",
-    "path": "^0.12.7",
     "pretty-checkbox": "3.0.3",
     "rxfire": "^6.0.3",
     "rxjs": "~7.4.0",
@@ -89,6 +88,7 @@
     "browserify": "latest",
     "codelyzer": "^6.0.2",
     "eslint": "~8.1.0",
+    "express": "^4.17.2",
     "express-http-to-https": "^1.1.4",
     "gzippo": "^0.2.0",
     "jasmine-core": "~3.4.0",
