@@ -88,7 +88,6 @@
     "@types/node": "~16.11.6",
     "browserify": "latest",
     "codelyzer": "^6.0.2",
-    "enhanced-resolve": "^3.3.0",
     "eslint": "~8.1.0",
     "express-http-to-https": "^1.1.4",
     "gzippo": "^0.2.0",
